@@ -17,7 +17,7 @@ flags:
     kind: ok
 ---
 
-There are already a lot of ways to "train" an incident-response team, so the first honest question to answer is the one in the title: why build another one? I didn't set out to add a tool to a crowded shelf. I set out because the two dominant ways teams rehearse for a breach both have the same flaw — they produce a feeling of readiness without a number you can stand behind. This is the opening dispatch of IncidentGym's field log, so before the technical posts go deep on the engine, I want to be precise about the problem we're actually solving and the bet we're making.
+There are already a lot of ways to "train" an incident-response team, so the first honest question to answer is the one in the title: why build another one? I didn't set out to add a tool to a crowded shelf. I set out because the two dominant ways teams rehearse for a breach both have the same flaw — they produce a feeling of readiness without a number you can stand behind. This is the opening dispatch of IncidentGym's field log, so before the technical posts go deep on the engine, I want to be precise about the problem we're actually solving and the bet we're making. To be clear about what this is: I started IncidentGym as my entry for the **#H0Hackathon** (Vercel + AWS Databases), and this field log is its public build journal.
 
 ## Why this matters now: the attack side is speeding up
 
