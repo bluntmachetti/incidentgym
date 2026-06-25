@@ -1,0 +1,54 @@
+---
+layout: default
+---
+<div class="wrap">
+  <section class="hero">
+    <div class="hero-kicker">
+      <span class="rule"></span>
+      <span class="hero-status"><span class="dot"></span>Build log · active</span>
+    </div>
+    <h1>IncidentGym <span class="accent">build log</span></h1>
+    <p class="hero-lead">
+      The build journey of <strong>IncidentGym</strong> — the gym for incident response, built for the
+      <strong>#H0Hackathon</strong> (Vercel + AWS Databases). Security teams drill realistic breaches and get a
+      readiness score that's <em>computed</em> from their environment and <em>audited</em> in
+      <strong>Amazon Aurora</strong> — not graded on how plausible the prose sounds. These are the engineering
+      decisions that made the score defensible: deterministic scoring, composite-FK tenant isolation, and a
+      blast-radius replay over the real dependency graph.
+    </p>
+    <div class="hero-meta">
+      <span class="tagchip"><span class="sw" style="background:#22d3ee"></span>Amazon Aurora</span>
+      <span class="tagchip"><span class="sw" style="background:#34d399"></span>Deterministic scoring</span>
+      <span class="tagchip"><span class="sw" style="background:#a78bfa"></span>Monetizable B2B</span>
+    </div>
+  </section>
+</div>
+
+<div class="wrap">
+  <section class="log">
+    <div class="log-head">
+      <h2>Dispatches</h2>
+      {% assign n = site.posts | size %}
+      <span class="count">{% if n < 10 %}0{% endif %}{{ n }} LOGGED</span>
+      <span class="rule"></span>
+    </div>
+
+    {% for post in site.posts %}
+    <a class="entry" href="{{ post.url | relative_url }}">
+      <div class="entry-idx">
+        <span class="entry-num">LOG-{{ post.log }}</span>
+        <span class="entry-date">{{ post.date | date: "%Y.%m.%d" }}</span>
+        <span class="entry-read">{{ post.read | upcase }}</span>
+      </div>
+      <div class="entry-body">
+        <div class="entry-flags">
+          {% for f in post.flags %}<span class="flag {{ f.kind }}">{{ f.text }}</span>{% endfor %}
+        </div>
+        <h3 class="entry-title">{{ post.title }}</h3>
+        <p class="entry-excerpt">{{ post.summary | default: post.description }}</p>
+        <span class="entry-more">Read dispatch <span class="arr">→</span></span>
+      </div>
+    </a>
+    {% endfor %}
+  </section>
+</div>

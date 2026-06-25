@@ -1,0 +1,27 @@
+title: "IncidentGym — Field Log"
+description: >-
+  The build journey of IncidentGym — a multi-tenant B2B incident-response training gym where security
+  teams drill realistic breaches and get a readiness score that's computed from their environment and
+  audited in Amazon Aurora, not graded on vibes by a language model. The decisions that made the score
+  defensible: deterministic scoring, composite-FK tenant isolation, and a blast-radius replay over the
+  real service-dependency graph. Built for the #H0Hackathon (Vercel + AWS Databases).
+# Publish posts even if their timestamp is ahead of the build clock (timezone-safe).
+future: true
+url: "https://bluntmachetti.github.io"
+baseurl: "/incidentgym"
+author:
+  name: "Kenny Ademolu"
+# The GitHub/Pages account is bluntmachetti; the displayed author is Kenny Ademolu. The source
+# repository is private, so only the live demo is linked.
+links:
+  demo: "https://incidentgym.redoubtlabs.dev"
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+# README/Gemfile are for the repo view, not the site. The Field Log uses the custom layouts in
+# _layouts/ + assets/css/blog.css (no theme).
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - vendor
