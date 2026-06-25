@@ -1,13 +1,15 @@
 ---
 layout: post
-title: "Why another incident-response tool?"
+title: "Why another cyber incident-response training tool?"
 date: 2026-06-21 09:00:00 +0000
-description: "Incident-response training is broken two ways: it's episodic, and the new AI trainers grade you on how plausible your prose sounds. IncidentGym computes the outcome of a decision from what would happen in a model of your environment — a readiness score a board and an auditor can trust."
+description: "Cyber incident-response training is broken two ways — it's episodic, and the new AI trainers grade you on how plausible your prose sounds — at exactly the moment AI is accelerating the attack side. IncidentGym computes the outcome of a decision from a model of your environment: a readiness score a board and an auditor can re-derive."
 log: "001"
-read: "6 min"
-summary: "Annual tabletops tell you nothing about today, and AI trainers that grade plausible prose can't tell a good answer from a contained breach. We built IncidentGym to score readiness a different way — deterministically, grounded in your environment's dependency graph, auditable. The honest 'why us' isn't 'another chatbot.' It's how we score. Here's the bet, and what the next dispatches go deep on."
+read: "7 min"
+summary: "The attack side is speeding up — security agencies and frontier labs now warn that AI is raising the volume and velocity of cyberattacks — while IR training is still an annual tabletop, or an AI grading plausible prose. We built IncidentGym to score readiness a different way: deterministically, grounded in your environment's dependency graph, auditable. The honest 'why us' isn't 'another chatbot.' It's how we score."
 flags:
-  - text: "IR training: episodic + vibes-graded"
+  - text: "AI is accelerating the attack side"
+    kind: warn
+  - text: "Training: episodic + vibes-graded"
     kind: warn
   - text: "Computed, not graded on vibes"
     kind: ok
@@ -16,6 +18,12 @@ flags:
 ---
 
 There are already a lot of ways to "train" an incident-response team, so the first honest question to answer is the one in the title: why build another one? I didn't set out to add a tool to a crowded shelf. I set out because the two dominant ways teams rehearse for a breach both have the same flaw — they produce a feeling of readiness without a number you can stand behind. This is the opening dispatch of IncidentGym's field log, so before the technical posts go deep on the engine, I want to be precise about the problem we're actually solving and the bet we're making.
+
+## Why this matters now: the attack side is speeding up
+
+The case for *measuring* readiness instead of feeling it gets sharper every quarter, because the other side is accelerating. The UK's National Cyber Security Centre assessed that AI will [almost certainly increase the volume and heighten the impact of cyber attacks](https://www.ncsc.gov.uk/report/impact-of-ai-on-cyber-threat) — lowering the barrier for less-skilled actors and sharpening reconnaissance and social engineering. And it isn't only a forecast: in late 2025 Anthropic reported [disrupting the first documented *AI-orchestrated* espionage campaign](https://www.anthropic.com/news/disrupting-AI-espionage), in which an agentic system ran reconnaissance, vulnerability discovery, exploitation, and data exfiltration across roughly thirty organizations — with the AI doing an estimated 80–90% of the hands-on work.
+
+Whatever you make of the exact figures, the direction is hard to argue with: incidents are getting faster and more frequent, and the gap between "something's off" and "it's everywhere" is compressing. That's the world an annual tabletop can't keep up with — and, with no small irony, a strange moment to let *plausible-sounding AI prose* be the thing that tells a security team it's ready. The faster the attack, the more a readiness number has to be real.
 
 ## The first break: training that's episodic
 
@@ -56,6 +64,8 @@ A field log that blurs shipped and not-shipped isn't worth much, so: today you d
 ## The forward bet
 
 Here's the part I'm most willing to be held to. Because the scoring is deterministic and grounded in a topology rather than in a model's opinion, the same engine doesn't only have to grade people. Point it at an autonomous IR agent and it answers a question the industry is about to need badly: *how good is our agent, on our environment, against this incident?* As response gets more agentic, "is the bot any good?" needs a reproducible answer, and a ruler that's already environment-grounded and auditable is the natural place to get one.
+
+And this isn't hypothetical for us. It's the same conviction behind a sibling project — [Aftershock](https://bluntmachetti.github.io/aftershock) — where a society of AI agents responds to a simulated disaster and is scored on a deterministic, reproducible ruler instead of graded on how good its plan *sounds*. Different domain (a disaster in a simulated town, not a breach in your estate), same refusal: if an agent is going to run the response, you measure it with a number you can re-derive.
 
 That's the wager this whole field log is here to test in public. The dispatches that follow keep the receipts — what shipped, what we got wrong, what we walked back. If there's one line that justifies building another incident-response tool, it's this: don't grade the prose, compute the outcome.
 
