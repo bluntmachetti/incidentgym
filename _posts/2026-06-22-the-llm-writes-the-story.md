@@ -2,7 +2,7 @@
 layout: post
 title: "The LLM writes the story. A pure function writes the score."
 date: 2026-06-22 09:00:00 +0000
-description: "Most AI graders ask a language model how plausible your answer sounds — and for a security product, plausible prose is not a contained breach. LOG 001 draws IncidentGym's hard line: the LLM narrates the incident and plays the advisors; a pure deterministic resolver computes the score from the environment, reproducibly. Here's why auditable + reproducible is the entire pitch to a regulated buyer."
+description: "Most AI graders ask a language model how plausible your answer sounds — and for a security product, plausible prose is not a contained breach. This dispatch draws IncidentGym's hard line: the LLM narrates the incident and plays the advisors; a pure deterministic resolver computes the score from the environment, reproducibly. Here's why auditable + reproducible is the entire pitch to a regulated buyer."
 log: "002"
 read: "7 min"
 summary: "AI graders that ask an LLM 'how plausible does this answer sound?' have a credibility hole: plausible prose is not a contained breach. So we split the work. The LLM writes the narrative and plays the advisor personas. A pure graph-cascade resolver — no LLM, no clock, no randomness — computes the score from your environment. Same inputs, same score. That's not a feature; for a regulated buyer it's the whole pitch."
@@ -64,6 +64,8 @@ If the answer is "a language model read the team's answers and felt they were ab
 
 The whole architecture follows from that one refusal at the start. The LLM makes the incident feel real. The pure function makes the score real. We kept them on opposite sides of a line we can point to — and the one place they had to touch, we fenced, labeled, and put a `warn` on so nobody has to take our word for it.
 
-That's LOG 001. The story is written by a model. The score is written by a function. And only one of those gets a vote on whether you passed.
+And the same property reaches past the people in the seat. The day an autonomous IR agent runs the response instead of a human, you hit the same question — *is it any good?* — and the same trap: you can't grade one model's output with another model and call it evidence. A deterministic ruler is the only honest answer, which is why this split isn't internal hygiene; it's what lets you benchmark an agent on a number it can be held to, exactly the way you'd benchmark a person. (We run that same bet in a different domain — disaster response — over at [Aftershock](https://bluntmachetti.github.io/aftershock).)
+
+That's the line. The story is written by a model. The score is written by a function. And only one of those gets a vote on whether you passed.
 
 Live demo: **<https://incidentgym.redoubtlabs.dev>**
