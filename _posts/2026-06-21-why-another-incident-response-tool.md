@@ -2,7 +2,7 @@
 layout: post
 title: "Why another incident-response tool?"
 date: 2026-06-21 09:00:00 +0000
-description: "Incident-response training is broken two ways: it's episodic, and the new AI trainers grade you on how plausible your prose sounds. IncidentGym computes the outcome of a decision from what would actually happen in your environment — a readiness score a board and an auditor can trust."
+description: "Incident-response training is broken two ways: it's episodic, and the new AI trainers grade you on how plausible your prose sounds. IncidentGym computes the outcome of a decision from what would happen in a model of your environment — a readiness score a board and an auditor can trust."
 log: "001"
 read: "6 min"
 summary: "Annual tabletops tell you nothing about today, and AI trainers that grade plausible prose can't tell a good answer from a contained breach. We built IncidentGym to score readiness a different way — deterministically, grounded in your environment's dependency graph, auditable. The honest 'why us' isn't 'another chatbot.' It's how we score. Here's the bet, and what the next dispatches go deep on."
@@ -25,7 +25,7 @@ What a CISO actually needs is continuous and comparable: a way to drill regularl
 
 ## The second break: graded on vibes
 
-The newer wave of tools fixes the cadence problem by putting an AI in the loop — drill any time, get instant feedback. Good instinct. But look closely at *how most of them score you*: you write your response in prose, and a language model judges how plausible that prose sounds. The grade is a measure of how convincing your writing is.
+The newer wave of tools fixes the cadence problem by putting an AI in the loop — drill any time, get instant feedback. Good instinct. But look closely at *how a lot of them score you*: you write your response in prose, and a language model judges how plausible that prose sounds. The grade is a measure of how convincing your writing is.
 
 For most domains that's a fine approximation. For a security product it's a credibility hole, because the whole job of an attacker is to make the wrong thing look right.
 
@@ -37,9 +37,9 @@ A confident, well-structured paragraph about isolating the affected service can 
 
 IncidentGym is incident-response training that's continuous, measurable, and above all *defensible*. The design goal, stated as plainly as I can: produce a readiness score a CISO can put in front of the board, and an auditor can't wave away.
 
-The thing that makes that possible isn't a better prompt or a sterner AI judge. It's a different architecture for where the number comes from. The outcome of a decision in IncidentGym is **computed** — propagated through a model of your environment's service dependencies — not *graded*. When you isolate a service, fail over, or escalate, a deterministic engine works out what would actually happen: what cascades, what's contained, which criticality-weighted services you saved and which you lost. Same decision, same environment, same score, every time. That reproducibility is the entire point. A number you can re-derive is a number you can audit; a number that depends on a model's mood that afternoon is not.
+The thing that makes that possible isn't a better prompt or a sterner AI judge. It's a different architecture for where the number comes from. The outcome of a decision in IncidentGym is **computed** — propagated through a model of your environment's service dependencies — not *graded*. When you isolate a service, fail over, or escalate, a deterministic engine works out what would happen in a model of your environment: what cascades, what's contained, which criticality-weighted services you saved and which you lost. Same decision, same environment, same score, every time. That reproducibility is the entire point. A number you can re-derive is a number you can audit; a number that depends on a model's mood that afternoon is not.
 
-So the honest "why us" is not "we added another chatbot to incident response." There's a language model in IncidentGym, and it does real work — it narrates the unfolding incident, it voices the advisor personas you argue with under pressure, the CEO and the security lead and the comms officer in the room. But it does not own the numbers. The story is generated; the score is computed. Keeping that line clean — narrative on one side, deterministic resolver on the other — is the part I'm proudest of, and it's what makes the readiness number mean something.
+So the honest "why us" is not "we added another chatbot to incident response." There's a language model in IncidentGym, and it does real work — it narrates the unfolding incident, it voices the advisor personas you argue with under pressure, the CEO and the security lead and the comms officer in the room. But it does not own the score's deterministic core — the axes a board and an auditor can re-derive. (One axis, communication, is model-assisted; we fence it and label it openly, and a later dispatch shows exactly how.) The story is generated; the defensible score is computed. Keeping that line clean — narrative on one side, deterministic resolver on the other — is the part I'm proudest of, and it's what makes the readiness number mean something.
 
 ## What the next dispatches go deep on
 
@@ -47,7 +47,11 @@ This is the opener, so I'm framing the bet, not unpacking the machinery. Three t
 
 - **The LLM narrates, but it never judges.** The split between the model that tells the story and the pure engine that scores the decision is the spine of the product. A future log walks through exactly where that boundary sits and why "same inputs, same score" is non-negotiable for a security tool.
 - **Tenant isolation enforced by the database, not by hope.** IncidentGym is multi-tenant, and we didn't want isolation to be a `where` clause someone could forget. It's a composite foreign-key invariant in the schema, so a cross-tenant write is rejected by PostgreSQL itself — a database error, not a passed application check. A dispatch covers how that turns "trust us" into something you can demonstrate live.
-- **The blast-radius replay over the real dependency graph.** The debrief doesn't just hand you a number. It animates the incident spreading and being contained across your environment's actual service-dependency graph, turn by turn — red along the dependencies that fell, cyan for what you saved — next to the counterfactual showing what a different call would have done. It's the deterministic engine's output, made visceral. That one earns a full post.
+- **The blast-radius replay over the real dependency graph.** The debrief doesn't just hand you a number. It animates the incident spreading and being contained across your environment's service-dependency graph, turn by turn — red along the dependencies that fell, cyan for what you saved — next to the counterfactual showing what a different call would have done. It's the deterministic engine's output, made visceral. That one earns a full post.
+
+## Where this is today
+
+A field log that blurs shipped and not-shipped isn't worth much, so: today you drill **solo** against a set of **built-in, fictional environments** — the dependency graphs are ours, not yet yours. Two things are in testing and not live: **bring-your-own-topology**, so you can drill on a model of *your* real estate instead of a stand-in, and **team-vs-incident multiplayer**, so a whole response team can run the same authoritative engine together. When they ship, this log keeps the receipts.
 
 ## The forward bet
 

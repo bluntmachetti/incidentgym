@@ -2,7 +2,7 @@
 layout: post
 title: "A cross-tenant write should be a database error, not a code review."
 date: 2026-06-23 09:00:00 +0000
-description: "App-code-only multi-tenant isolation is one forgotten WHERE clause from a leak. In IncidentGym we pushed isolation into the schema: every row carries orgId, every parent declares @@unique([id, orgId]), every child binds (sessionId, orgId) as a composite foreign key into the parent's (id, orgId). A cross-tenant write is rejected by Postgres itself — error 23503 — not by a reviewer. And it's provable live in the audit console."
+description: "App-code-only multi-tenant isolation is one forgotten WHERE clause from a leak. In IncidentGym we pushed isolation into the schema: every row carries orgId, every parent declares @@unique([id, orgId]), every child binds (sessionId, orgId) as a composite foreign key into the parent's (id, orgId). A cross-tenant write is rejected by Postgres itself — error 23503 on the Turn_orgId_fkey constraint — not by a reviewer. And it's provable live in the audit console."
 log: "003"
 read: "6 min"
 summary: "Multi-tenant isolation enforced only in application code is one forgotten WHERE clause from a cross-tenant leak. So we stopped trusting code review for it. In IncidentGym every row carries an orgId, every parent declares @@unique([id, orgId]), and every child binds (sessionId, orgId) as a composite foreign key into the parent's (id, orgId) — making child.orgId == parent.orgId a Postgres guarantee. A cross-tenant write isn't a missed review, it's a foreign-key error 23503. The CISO audit console has a one-click proof you can run live."
@@ -37,6 +37,28 @@ Concretely, in our Prisma schema:
 - Every *parent* table declares a composite unique key on `@@unique([id, orgId])`. The id is already unique on its own; this extra key exists purely so the pair `(id, orgId)` is a thing a foreign key can point at.
 - Every *child* table binds `(sessionId, orgId)` as a **composite foreign key** into that parent's `(id, orgId)`.
 
+Concretely:
+
+```prisma
+model GameSession {
+  id    String @id @default(cuid())
+  orgId String
+  turns Turn[]
+
+  @@unique([id, orgId]) // the composite key a child FK can point at
+}
+
+model Turn {
+  id        String      @id @default(cuid())
+  sessionId String
+  orgId     String
+  // composite FK: a Turn can only attach to a session in the SAME org
+  session   GameSession @relation(fields: [sessionId, orgId], references: [id, orgId])
+
+  @@unique([id, orgId])
+}
+```
+
 That last line is the whole game. The relationship from `Turn` to `GameSession` is no longer "this `sessionId` exists" — it's "a session with *this id and this orgId* exists." Which means `child.orgId == parent.orgId` is no longer something application code asserts and hopes for. It's something Postgres *checks on every insert and update*, because it's the referential-integrity rule the constraint encodes.
 
 > A cross-tenant write isn't a missed code review anymore. It's a foreign-key violation — Postgres error `23503` — raised by the database before the row ever lands.
@@ -47,7 +69,7 @@ Try to write a `Turn` for session `S` (owned by org B) while stamping it with or
 
 The composite FK is the floor — the thing that holds even when everything above it is wrong. But we still build the layers above it correctly, because defense in depth means each layer assumes the others might fail.
 
-The first layer is query scoping. We don't sprinkle `where: { orgId }` by hand and pray. Every database call goes through `db.scoped(orgId)`, which injects the `orgId` filter onto every query it issues. There's one place where scoping is decided, not hundreds of call sites where it can be forgotten. A reader can't accidentally see another tenant's rows because the scoped client won't emit an unscoped query in the first place.
+The first layer is query scoping. We don't sprinkle `where: { orgId }` by hand and pray. Every application query path goes through `db.scoped(orgId)`, which injects the `orgId` filter onto every query it issues. There's one place where scoping is decided, not hundreds of call sites where it can be forgotten. A reader can't accidentally see another tenant's rows because the scoped client won't emit an unscoped query in the first place.
 
 The second layer is the one I care about most on the write path: **the finalize step is exactly-once and idempotent.** When a turn is scored and committed, scoring and persistence happen as one resumable operation, so a refresh or a second tab can't double-advance or double-charge a turn. And if a write ever tried to land a child row whose tenant disagreed with its parent's, the composite FK underneath is waiting to reject the mismatch anyway. The structural guarantee doesn't lean on the finalize logic being perfect — it's there precisely for the case where it isn't.
 
@@ -66,9 +88,9 @@ The bottom-right cell is what turns this from an architecture decision into a de
 
 A guarantee you can only describe is a claim. A guarantee you can *trigger on stage* is evidence. So the CISO-facing audit console has a **one-click isolation proof**, and it does exactly what a skeptic would do if you handed them a psql prompt: it attempts a cross-tenant write — a child row stamped with the wrong tenant — and shows you what the database says back.
 
-The database rejects it with foreign-key error `23503`, surfaced right there in the console. It's a live demonstration that the isolation boundary is real and is enforced where we say it is: in Aurora, not in a slide. You don't have to take "we scope everything" on faith — you can watch Postgres refuse the write.
+The database rejects it with foreign-key error `23503` on the `Turn_orgId_fkey` constraint, surfaced right there in the console. It's a live demonstration that the isolation boundary is real and is enforced where we say it is: in Aurora, not in a slide. You don't have to take "we scope everything" on faith — you can watch Postgres refuse the write.
 
-And because the boundary lives in the schema, it doesn't weaken in the public demo. The live deployment runs in single-org mode — a shared demo org, no sign-in — so judges can click straight in without signing up, but the *same* composite-FK scoping is in force. The isolation guarantee is identical to the multi-tenant configuration. The demo isn't a watered-down version that "would" be isolated in production. It's the same wall, with one door open for visitors, and the proof works either way.
+And because the boundary lives in the schema, it doesn't weaken in the public demo. The live deployment runs in single-org mode — a shared demo org, no sign-in — so judges can click straight in without signing up, but the *same* composite-FK scoping is in force. The same composite-FK constraints are active either way. The demo isn't a watered-down version that "would" be isolated in production. It's the same wall, with one door open for visitors, and the proof works either way.
 
 ## Why this was worth the schema care
 
